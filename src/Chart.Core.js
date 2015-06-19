@@ -405,7 +405,13 @@
 				skipFitting = (minSteps >= maxSteps);
 
 			var maxValue = max(valuesArray),
-				minValue = min(valuesArray);
+				minValue = Number.POSITIVE_INFINITY;
+
+			each(valuesArray, function(value){
+				if (value < minValue && value != null){
+					minValue = value;
+				}
+			});
 
 			// We need some degree of seperation here to calculate the scales if all the values are the same
 			// Adding/minusing 0.5 will give us a range of 1.
@@ -939,25 +945,25 @@
 			if (reflow){
 				this.reflow();
 			}
-			
+
 			if (this.options.animation && !reflow){
 				var animation = new Chart.Animation();
 				animation.numSteps = this.options.animationSteps;
 				animation.easing = this.options.animationEasing;
-				
+
 				// render function
 				animation.render = function(chartInstance, animationObject) {
 					var easingFunction = helpers.easingEffects[animationObject.easing];
 					var stepDecimal = animationObject.currentStep / animationObject.numSteps;
 					var easeDecimal = easingFunction(stepDecimal);
-					
+
 					chartInstance.draw(easeDecimal, stepDecimal, animationObject.currentStep);
 				};
-				
+
 				// user events
 				animation.onAnimationProgress = this.options.onAnimationProgress;
 				animation.onAnimationComplete = this.options.onAnimationComplete;
-				
+
 				Chart.animationService.addAnimation(this, animation);
 			}
 			else{
@@ -1370,11 +1376,11 @@
 		numSteps: 60, // default number of steps
 		easing: "", // the easing to use for this animation
 		render: null, // render function used by the animation service
-		
-		onAnimationProgress: null, // user specified callback to fire on each step of the animation 
+
+		onAnimationProgress: null, // user specified callback to fire on each step of the animation
 		onAnimationComplete: null, // user specified callback to fire when the animation finishes
 	});
-	
+
 	Chart.Tooltip = Chart.Element.extend({
 		draw : function(){
 
@@ -2092,7 +2098,7 @@
 					return;
 				}
 			}
-			
+
 			this.animations.push({
 				chartInstance: chartInstance,
 				animationObject: animationObject
@@ -2108,7 +2114,7 @@
 			var index = helpers.findNextWhere(this.animations, function(animationWrapper) {
 				return animationWrapper.chartInstance === chartInstance;
 			});
-			
+
 			if (index)
 			{
 				this.animations.splice(index, 1);
@@ -2138,9 +2144,9 @@
 				if(this.animations[i].animationObject.currentStep > this.animations[i].animationObject.numSteps){
 					this.animations[i].animationObject.currentStep = this.animations[i].animationObject.numSteps;
 				}
-				
+
 				this.animations[i].animationObject.render(this.animations[i].chartInstance, this.animations[i].animationObject);
-				
+
 				if (this.animations[i].animationObject.currentStep == this.animations[i].animationObject.numSteps){
 					// executed the last frame. Remove the animation.
 					this.animations.splice(i, 1);
